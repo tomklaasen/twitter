@@ -20,7 +20,11 @@ module Twitter
     def timeline(which=:friends, options={})
       raise UnknownTimeline unless [:friends, :public, :user].include?(which)
       auth = which.to_s.include?('public') ? false : true
-      statuses(call("#{which}_timeline", :auth => auth, :since => options[:since], :args => parse_options(options)))
+      statuses(call("#{which}_timeline", :auth => auth, :since => options[:since], :id => options.delete(:id), :args => parse_options(options)))
+    end
+    
+    # Returns an array of the last statuses of a user
+    def user_statuses
     end
     
     # Returns an array of users who are in your friends list
@@ -188,7 +192,8 @@ module Twitter
         # Following line needed as lite=false doesn't work in the API: http://tinyurl.com/yo3h5d
         options[:args].delete(:lite) unless options[:args][:lite]
         args = options.delete(:args)
-        request(build_path("statuses/#{method.to_s}.xml", args), options)
+        id = options[:id] ? "/#{options[:id]}" : ''
+        request(build_path("statuses/#{method.to_s}#{id}.xml", args), options)
       end
       
       # Makes a request to twitter.
